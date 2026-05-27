@@ -24,10 +24,10 @@ function M.colors(style)
 end
 
 ---Lualine theme table. Pass to `options.theme`.
+---When `style` is nil, resolves against the active lull config / background.
 ---@param style "dark"|"light"|nil
 function M.lualine(style)
-  if style then return require("lull.lualine").theme(style) end
-  return require("lull.lualine")
+  return require("lull.lualine").theme(style)
 end
 
 return M

@@ -187,17 +187,95 @@ local p_dark = require("lull").colors("dark")
 
 ### Lualine
 
+Three ways to wire it up, pick whichever fits your config style:
+
 ```lua
+-- 1. By name (auto-discovered via lua/lualine/themes/lull.lua)
+require("lualine").setup({ options = { theme = "lull" } })
+
+-- 2. As a table — follows the active lull style at call time
 require("lualine").setup({
-  options = {
-    theme = require("lull").lualine(),       -- follows current style
-    -- or:
-    -- theme = require("lull").lualine("dark"),
+  options = { theme = require("lull").lualine() },
+})
+
+-- 3. Pinned to a specific variant
+require("lualine").setup({
+  options = { theme = require("lull").lualine("dark") },
+})
+```
+
+The theme reads from `require("lull").colors()`, so any palette override you pass to `setup()` (or any `on_highlights` adjustment that swaps tokens) flows into the statusline automatically.
+
+#### Live variant switching
+
+Lualine caches the theme it was given at setup time. If you toggle `vim.o.background` at runtime and want lualine to re-pull lull's colors, listen for `ColorScheme`:
+
+```lua
+vim.api.nvim_create_autocmd("ColorScheme", {
+  pattern = "lull",
+  callback = function()
+    require("lualine").setup({
+      options = { theme = require("lull").lualine() },
+      -- …your other lualine options
+    })
+  end,
+})
+```
+
+#### Sections, palette access
+
+If you want to color individual lualine components using lull's tokens:
+
+```lua
+local p = require("lull").colors()
+
+require("lualine").setup({
+  options = { theme = "lull" },
+  sections = {
+    lualine_c = {
+      { "filename", color = { fg = p.fg, gui = "bold" } },
+      { "diff",
+        symbols = { added = "+", modified = "~", removed = "-" },
+        diff_color = {
+          added    = { fg = p.git_add },
+          modified = { fg = p.git_change },
+          removed  = { fg = p.git_delete },
+        },
+      },
+    },
+    lualine_x = {
+      { "diagnostics",
+        sources = { "nvim_diagnostic" },
+        diagnostics_color = {
+          error = { fg = p.error },
+          warn  = { fg = p.warn },
+          info  = { fg = p.info },
+          hint  = { fg = p.hint },
+        },
+      },
+      "filetype",
+    },
   },
 })
 ```
 
-The theme reacts to your current `style`/`background`, so toggling variants and re-running `:colorscheme lull` (or listening for the `ColorScheme` autocmd) updates the statusline automatically.
+The full token list is in [`lua/lull/palette.lua`](./lua/lull/palette.lua) and summarized [above](#palette-tokens).
+
+#### Mode colors
+
+Lull's mode-A blocks follow the accent palette:
+
+| Mode     | Background | Foreground |
+| -------- | ---------- | ---------- |
+| Normal   | `slate`    | `bg`       |
+| Insert   | `sage`     | `bg`       |
+| Visual   | `mauve`    | `bg`       |
+| Replace  | `rose`     | `bg`       |
+| Command  | `amber`    | `bg`       |
+| Terminal | `teal`     | `bg`       |
+| Inactive | `bg_alt`   | `fg_mute`  |
+
+Override any of these via `palette` or `on_highlights` in `setup()` and the lualine theme updates with them.
 
 ### Disabling plugin integrations
 
@@ -245,19 +323,22 @@ lull.nvim/
 ├── colors/
 │   └── lull.lua                  # :colorscheme entry point
 ├── lua/
-│   └── lull/
-│       ├── init.lua              # public API (setup, load, colors, lualine)
-│       ├── config.lua            # defaults + merge logic
-│       ├── palette.lua           # dark + light color tables
-│       ├── theme.lua             # assembles all groups, applies via vim.api.nvim_set_hl
-│       ├── lualine.lua           # lualine theme
-│       └── groups/
-│           ├── editor.lua        # UI chrome (Normal, StatusLine, Pmenu, …)
-│           ├── syntax.lua        # classic vim syntax (Comment, Type, …)
-│           ├── treesitter.lua    # @captures
-│           ├── lsp.lua           # @lsp.type.* / @lsp.mod.* / LSP UI
-│           ├── diagnostics.lua   # Diagnostic*
-│           └── plugins.lua       # plugin highlight groups
+│   ├── lull/
+│   │   ├── init.lua              # public API (setup, load, colors, lualine)
+│   │   ├── config.lua            # defaults + merge logic
+│   │   ├── palette.lua           # dark + light color tables
+│   │   ├── theme.lua             # assembles all groups, applies via vim.api.nvim_set_hl
+│   │   ├── lualine.lua           # lualine theme (M.theme / M.dark / M.light)
+│   │   └── groups/
+│   │       ├── editor.lua        # UI chrome (Normal, StatusLine, Pmenu, …)
+│   │       ├── syntax.lua        # classic vim syntax (Comment, Type, …)
+│   │       ├── treesitter.lua    # @captures
+│   │       ├── lsp.lua           # @lsp.type.* / @lsp.mod.* / LSP UI
+│   │       ├── diagnostics.lua   # Diagnostic*
+│   │       └── plugins.lua       # plugin highlight groups
+│   └── lualine/
+│       └── themes/
+│           └── lull.lua          # makes `theme = "lull"` work in lualine
 └── README.md
 ```
 
