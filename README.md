@@ -11,18 +11,6 @@ A quiet Neovim colorscheme designed for long sessions. Muted, desaturated tones 
 - Lualine theme included
 - 16-color terminal palette
 
-## Screenshots
-
-<!-- Drop screenshots here -->
-
-| Dark                            | Light                             |
-| ------------------------------- | --------------------------------- |
-| ![dark](./assets/lull-dark.png) | ![light](./assets/lull-light.png) |
-
-| Diagnostics                                   | Telescope                                 |
-| --------------------------------------------- | ----------------------------------------- |
-| ![diagnostics](./assets/lull-diagnostics.png) | ![telescope](./assets/lull-telescope.png) |
-
 ## Requirements
 
 - Neovim **0.10+** (uses `vim.api.nvim_set_hl`, `vim.hl.priorities`, undercurl with `sp=`)
