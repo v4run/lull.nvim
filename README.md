@@ -34,7 +34,7 @@ A quiet Neovim colorscheme designed for long sessions. Muted, desaturated tones 
 
 ```lua
 {
-  "your-handle/lull.nvim",
+  "v4run/lull.nvim",
   lazy = false,
   priority = 1000,
   opts = {
@@ -52,7 +52,7 @@ A quiet Neovim colorscheme designed for long sessions. Muted, desaturated tones 
 
 ```lua
 use {
-  "your-handle/lull.nvim",
+  "v4run/lull.nvim",
   config = function()
     require("lull").setup({})
     vim.cmd.colorscheme("lull")
@@ -63,7 +63,7 @@ use {
 ### vim-plug / built-in `:packadd`
 
 ```vim
-Plug 'your-handle/lull.nvim'
+Plug 'v4run/lull.nvim'
 " then, somewhere in your init.lua:
 " require("lull").setup({}); vim.cmd.colorscheme("lull")
 ```
