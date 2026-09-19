@@ -12,6 +12,7 @@
 --        theme = require("lull.lualine").theme("dark")
 --        theme = require("lull.lualine").dark
 --        theme = require("lull.lualine").light
+--        theme = require("lull.lualine").black
 --
 -- The theme reacts to your config + vim.o.background. If you toggle variants
 -- at runtime, re-run :colorscheme lull (or use the ColorScheme autocmd shown
@@ -19,7 +20,7 @@
 
 local M = {}
 
----@param style "dark"|"light"|nil  -- nil → follows current lull config / background
+---@param style "dark"|"light"|"black"|nil  -- nil → follows current lull config / background
 function M.theme(style)
   local p = require("lull.theme").colors(style)
 
@@ -68,5 +69,6 @@ end
 -- Convenience properties for callers who want a specific variant.
 M.dark  = M.theme("dark")
 M.light = M.theme("light")
+M.black = M.theme("black")
 
 return M

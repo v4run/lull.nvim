@@ -11,21 +11,21 @@ function M.setup(user)
 end
 
 ---Apply the theme. Honors the active config; an explicit `style` overrides.
----@param style "dark"|"light"|nil
+---@param style "dark"|"light"|"black"|nil
 function M.load(style)
   require("lull.theme").load(style)
 end
 
 ---Resolved palette for the currently active style. Useful for statusline
 ---authors who want to read lull's tokens without applying highlights.
----@param style "dark"|"light"|nil
+---@param style "dark"|"light"|"black"|nil
 function M.colors(style)
   return require("lull.theme").colors(style)
 end
 
 ---Lualine theme table. Pass to `options.theme`.
 ---When `style` is nil, resolves against the active lull config / background.
----@param style "dark"|"light"|nil
+---@param style "dark"|"light"|"black"|nil
 function M.lualine(style)
   return require("lull.lualine").theme(style)
 end

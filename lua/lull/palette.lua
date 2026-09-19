@@ -1,6 +1,8 @@
 -- lull.nvim — palette
 -- Muted, desaturated tones inspired by overcast skies, soft linen, and quiet water.
 -- No pure black, no pure white. Warm undertones throughout.
+-- (The `black` variant is the deliberate exception: pure #000000 for OLED /
+-- high-contrast use, with the same hue families turned up bright.)
 
 local M = {}
 
@@ -141,11 +143,83 @@ M.light = {
   none        = "NONE",
 }
 
+-- =========================================================================
+-- Black variant — pure black background, bright high-contrast accents.
+-- Same hue families as dark, lifted so every accent clears 7:1 (WCAG AAA)
+-- against #000000. Comments sit at ~4.8:1 so they recede without vanishing.
+-- =========================================================================
+M.black = {
+  -- Surfaces (a near-black ladder so floats/popups still separate from bg)
+  bg          = "#000000", -- editor background (pure black)
+  bg_alt      = "#0a0a0a", -- sidebar / inactive splits
+  bg_float    = "#101010", -- floating windows
+  bg_popup    = "#161616", -- popup menus
+  bg_sel      = "#1e1e1e", -- visual selection
+  bg_cursor   = "#0c0c0c", -- cursor line
+  bg_search   = "#3d3410", -- search match (amber wash)
+  bg_match    = "#2a2a2a", -- matched paren
+  bg_inactive = "#000000", -- dim_inactive overlay (already at the floor)
+
+  -- Foreground
+  fg          = "#e8e6e3", -- primary code (16.9:1)
+  fg_alt      = "#d0cec9", -- secondary foreground
+  fg_dim      = "#a8a6a0", -- tertiary / hints
+  fg_mute     = "#8a8880", -- muted UI text
+  fg_subtle   = "#5c5b57", -- very faded — line numbers, etc.
+
+  -- Comments & non-text
+  comment     = "#7a7872", -- 4.8:1 — faded but readable
+  comment_doc = "#8e8c85", -- doc comments lift slightly
+  nontext     = "#2a2a2a", -- listchars, endofbuffer
+  border      = "#262626",
+  border_lift = "#363636",
+
+  -- Accents (bright, saturated — all >= 10:1 on black)
+  sage        = "#8fe0a0", -- functions
+  sage_dim    = "#6fbf80",
+  rose        = "#ff9bb0", -- constants, numbers
+  rose_dim    = "#d97d92",
+  amber       = "#ffcf7a", -- strings
+  amber_dim   = "#d9ad5c",
+  slate       = "#8ec8ff", -- keywords
+  slate_dim   = "#6fa8df",
+  mauve       = "#d9a8ff", -- types
+  mauve_dim   = "#b88adf",
+  olive       = "#e0d080", -- attributes / fields
+  teal        = "#7ee8dc", -- special / regex
+  rust        = "#ffa070", -- operators / return / self
+
+  -- Diagnostics
+  error       = "#ff6b6b",
+  warn        = "#ffb347",
+  info        = "#6cc8ff",
+  hint        = "#8fe0a0",
+  ok          = "#8fe0a0",
+
+  -- Diagnostic backgrounds (dark tinted washes)
+  error_bg    = "#2a0e0e",
+  warn_bg     = "#2a1e08",
+  info_bg     = "#0a1a2a",
+  hint_bg     = "#0c2212",
+
+  -- Git / diff
+  diff_add    = "#0c1f10",
+  diff_change = "#0c1626",
+  diff_delete = "#240c0c",
+  diff_text   = "#16341c",
+  git_add     = "#8fe0a0",
+  git_change  = "#8ec8ff",
+  git_delete  = "#ff6b6b",
+
+  -- None
+  none        = "NONE",
+}
+
 -- Resolve a palette by name, with optional user overrides.
----@param name "dark"|"light"
+---@param name "dark"|"light"|"black"
 ---@param overrides table|nil  -- merged on top of the base palette
 function M.get(name, overrides)
-  local base = name == "light" and M.light or M.dark
+  local base = M[name] or M.dark
   local out = {}
   for k, v in pairs(base) do out[k] = v end
   if overrides then

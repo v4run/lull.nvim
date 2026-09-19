@@ -3,7 +3,8 @@
 A quiet Neovim colorscheme designed for long sessions. Muted, desaturated tones inspired by overcast skies, soft linen, and quiet water. Low contrast but readable — nothing screams, nothing hides.
 
 - Dark and light variants, toggled via `vim.o.background`
-- Warm undertones throughout — no pure black, no pure white
+- A **black** variant — pure `#000000` background with bright, high-contrast accents (every syntax color ≥ 7:1) for OLED screens and bright rooms
+- Warm undertones throughout — no pure black, no pure white (except `black`, on purpose)
 - Full Treesitter coverage including newer captures (`@variable.member`, `@function.call`, `@keyword.return`, `@markup.*`, `@diff.*`, …)
 - LSP semantic tokens (`@lsp.type.*`, `@lsp.mod.*`, common `@lsp.typemod.*` combinations)
 - Modern diagnostic styling with `undercurl` underlines
@@ -76,13 +77,28 @@ Switch variants at runtime by flipping `background`:
 require("lull").setup({ style = "dark" })
 ```
 
+### Black variant
+
+`black` is a pure-black, high-contrast take on the same palette. Because `vim.o.background` only knows dark/light, it never gets picked by `"auto"` — opt in explicitly, either way:
+
+```lua
+require("lull").setup({ style = "black" })
+vim.cmd.colorscheme("lull")
+```
+
+```vim
+:colorscheme lull-black
+```
+
+When active, `g:colors_name` is `lull-black` (so `ColorScheme` autocmds can tell it apart) and `vim.o.background` is `dark`.
+
 ## Configuration
 
 All options are optional. The defaults live in `lua/lull/config.lua`.
 
 ```lua
 require("lull").setup({
-  -- "dark" | "light" | "auto" (follows vim.o.background)
+  -- "dark" | "light" | "black" | "auto" (follows vim.o.background; never picks black)
   style = "auto",
 
   -- Drop all editor backgrounds (Normal, NormalFloat, SignColumn…). Useful for
@@ -134,6 +150,9 @@ require("lull").setup({
     light = {
       -- fg = "#3f3d36",
     },
+    black = {
+      -- comment = "#8a8880",
+    },
   },
 
   -- Final-pass override hook. Receives the resolved palette `p` and the
@@ -171,6 +190,7 @@ You can read the resolved palette at any time:
 ```lua
 local p = require("lull").colors()  -- current variant
 local p_dark = require("lull").colors("dark")
+local p_black = require("lull").colors("black")
 ```
 
 ### Lualine
@@ -186,7 +206,7 @@ require("lualine").setup({
   options = { theme = require("lull").lualine() },
 })
 
--- 3. Pinned to a specific variant
+-- 3. Pinned to a specific variant ("dark" | "light" | "black")
 require("lualine").setup({
   options = { theme = require("lull").lualine("dark") },
 })
@@ -200,7 +220,7 @@ Lualine caches the theme it was given at setup time. If you toggle `vim.o.backgr
 
 ```lua
 vim.api.nvim_create_autocmd("ColorScheme", {
-  pattern = "lull",
+  pattern = "lull*",  -- matches both "lull" and "lull-black"
   callback = function()
     require("lualine").setup({
       options = { theme = require("lull").lualine() },
@@ -302,19 +322,20 @@ require("lull").setup({
 - **Warm undertones.** Backgrounds skew warm-charcoal / warm-linen to reduce blue-light fatigue.
 - **Dusty accents.** Sage green, dusty rose, faded amber, slate blue, soft mauve — never neon.
 - **Quiet hierarchy.** Functions sit a hair brighter than identifiers, strings are warm, keywords are slightly muted slate, comments are noticeably faded.
-- **No pure black, no pure white.** Anywhere.
+- **No pure black, no pure white.** Anywhere — except the `black` variant, which trades the warm charcoal for `#000000` and turns the same hues up bright so the contrast stays comfortable.
 
 ## Project structure
 
 ```
 lull.nvim/
 ├── colors/
-│   └── lull.lua                  # :colorscheme entry point
+│   ├── lull.lua                  # :colorscheme entry point
+│   └── lull-black.lua            # :colorscheme lull-black
 ├── lua/
 │   ├── lull/
 │   │   ├── init.lua              # public API (setup, load, colors, lualine)
 │   │   ├── config.lua            # defaults + merge logic
-│   │   ├── palette.lua           # dark + light color tables
+│   │   ├── palette.lua           # dark + light + black color tables
 │   │   ├── theme.lua             # assembles all groups, applies via vim.api.nvim_set_hl
 │   │   ├── lualine.lua           # lualine theme (M.theme / M.dark / M.light)
 │   │   └── groups/
@@ -327,6 +348,8 @@ lull.nvim/
 │   └── lualine/
 │       └── themes/
 │           └── lull.lua          # makes `theme = "lull"` work in lualine
+├── tests/
+│   └── check.lua                 # headless smoke + contrast test
 └── README.md
 ```
 

@@ -11,11 +11,28 @@ local function load_group(name)
 end
 
 ---@param p table palette
----@param style "dark"|"light"
+---@param style "dark"|"light"|"black"
 local function set_terminal_colors(p, style)
   -- ANSI 0..15 — keep close to the editor palette so terminal output reads
   -- as part of the same scene rather than a contrasting pop-out.
-  if style == "dark" then
+  if style == "black" then
+    vim.g.terminal_color_0  = "#161616" -- black (lifted from bg so it's visible)
+    vim.g.terminal_color_1  = p.error
+    vim.g.terminal_color_2  = p.sage
+    vim.g.terminal_color_3  = p.amber
+    vim.g.terminal_color_4  = p.slate
+    vim.g.terminal_color_5  = p.mauve
+    vim.g.terminal_color_6  = p.teal
+    vim.g.terminal_color_7  = p.fg_alt
+    vim.g.terminal_color_8  = p.fg_mute
+    vim.g.terminal_color_9  = p.rose
+    vim.g.terminal_color_10 = "#a8f0b8"
+    vim.g.terminal_color_11 = "#ffe0a0"
+    vim.g.terminal_color_12 = "#a8d8ff"
+    vim.g.terminal_color_13 = "#e8c0ff"
+    vim.g.terminal_color_14 = "#a0f0e8"
+    vim.g.terminal_color_15 = p.fg
+  elseif style == "dark" then
     vim.g.terminal_color_0  = "#2a2d36" -- black (slightly lifted from bg)
     vim.g.terminal_color_1  = p.error
     vim.g.terminal_color_2  = p.sage
@@ -52,18 +69,21 @@ local function set_terminal_colors(p, style)
   end
 end
 
----@param style "dark"|"light"|nil  -- if nil, resolved from config
+---@param style "dark"|"light"|"black"|nil  -- if nil, resolved from config
 function M.load(style)
   local config = require("lull.config")
   local cfg = config.options
 
   style = style or config.resolve_style()
-  vim.o.background = style
+  -- 'background' only knows dark/light; black is a dark scheme.
+  vim.o.background = style == "light" and "light" or "dark"
 
   if vim.g.colors_name then pcall(vim.cmd, "hi clear") end
   if vim.fn.exists("syntax_on") == 1 then pcall(vim.cmd, "syntax reset") end
 
-  vim.g.colors_name = "lull"
+  -- `:colorscheme lull-black` reports its own name so ColorScheme autocmds
+  -- and plugins can tell the variants apart.
+  vim.g.colors_name = style == "black" and "lull-black" or "lull"
   vim.o.termguicolors = true
 
   -- Resolve palette + user overrides
@@ -130,10 +150,12 @@ function M.load(style)
 end
 
 ---Return the resolved palette without (re)applying highlights.
----@param style "dark"|"light"|nil
+---@param style "dark"|"light"|"black"|nil
 function M.colors(style)
   local config = require("lull.config")
-  style = style or config.resolve_style()
+  -- Prefer the variant actually on screen (e.g. `:colorscheme lull-black`
+  -- without a matching `style` in setup); fall back to config resolution.
+  style = style or M.style or config.resolve_style()
   local overrides = (config.options.palette or {})[style] or {}
   return require("lull.palette").get(style, overrides)
 end

@@ -3,8 +3,10 @@ local M = {}
 
 ---@class LullConfig
 M.defaults = {
-  -- "dark" | "light" | "auto"
-  -- "auto" follows vim.o.background (the default Neovim mechanism).
+  -- "dark" | "light" | "black" | "auto"
+  -- "auto" follows vim.o.background (the default Neovim mechanism) and picks
+  -- dark or light; "black" (pure #000000, high contrast) must be set
+  -- explicitly here or via `:colorscheme lull-black`.
   style = "auto",
 
   -- Drop all editor backgrounds (Normal, NormalFloat, SignColumn, ...).
@@ -52,6 +54,7 @@ M.defaults = {
   palette = {
     dark = {},
     light = {},
+    black = {},
   },
 
   -- Override or add highlight groups after the theme is applied.
@@ -85,10 +88,10 @@ function M.setup(user)
   return M.options
 end
 
----@return "dark"|"light"
+---@return "dark"|"light"|"black"
 function M.resolve_style()
   local s = M.options.style
-  if s == "dark" or s == "light" then return s end
+  if s == "dark" or s == "light" or s == "black" then return s end
   return vim.o.background == "light" and "light" or "dark"
 end
 
